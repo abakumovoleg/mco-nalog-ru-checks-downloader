@@ -6,17 +6,20 @@ using System.Text.Json.Serialization;
 namespace ReceiptDownloader;
 
 static class DataBuilder
-{
+{    
+    const string OutputFile = "../data.js";
+    const string StoreMappingFile = "../store_mapping.json";
+
     private static readonly JsonSerializerOptions JsonOptions = new ()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true
     };
 
-    public static int Build(ReceiptsRepository repo, string outputFile, string storeMappingFile)
+    public static int Build(ReceiptsRepository repo)
     {
-        var storeMapping = File.Exists(storeMappingFile)
-            ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(storeMappingFile)) ?? []
+        var storeMapping = File.Exists(StoreMappingFile)
+            ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(StoreMappingFile)) ?? []
             : [];
 
         var records = new List<ReceiptRecord>();
@@ -47,7 +50,7 @@ static class DataBuilder
         }
 
         var json = JsonSerializer.Serialize(records, JsonOptions);
-        File.WriteAllText(outputFile, $"const RECEIPT_DATA = {json};\n", Encoding.UTF8);
+        File.WriteAllText(OutputFile, $"const RECEIPT_DATA = {json};\n", Encoding.UTF8);
 
         Console.WriteLine($"Processed {fileCount} files, extracted {records.Count} item records.");
         return 0;

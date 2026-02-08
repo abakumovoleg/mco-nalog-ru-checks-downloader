@@ -1,13 +1,9 @@
 using ReceiptDownloader;
 
-
-const string OutputFile = "data.js";
-const string StoreMappingFile = "store_mapping.json";
-
 var repo = new ReceiptsRepository();
 
 if (args.Length > 0 && args[0] == "build")
-    return DataBuilder.Build(repo, OutputFile, StoreMappingFile);
+    return DataBuilder.Build(repo);
 
 var token = args.Length > 0 ? args[0] : Environment.GetEnvironmentVariable("NALOG_TOKEN");
 if (string.IsNullOrEmpty(token))

@@ -7,7 +7,7 @@ namespace ReceiptDownloader;
 
 class ReceiptsRepository
 {
-    const string OutputDir = "receipts";
+    const string OutputDir = "../receipts";
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
