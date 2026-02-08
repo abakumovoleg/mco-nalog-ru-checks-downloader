@@ -1,0 +1,70 @@
+﻿{
+  "fiscalSign": "1738302144",
+  "provisionSum": 0.00,
+  "user": "АКЦИОНЕРНОЕ ОБЩЕСТВО \"ВКУСВИЛЛ\"",
+  "machineNumber": null,
+  "fiscalDriveNumber": "7384440900877139",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 679.27,
+  "taxationType": 1,
+  "dateTime": "2026-01-29T17:46:00",
+  "items": [
+    {
+      "sum": 65.27,
+      "paymentType": 3,
+      "nds": 4,
+      "providerInn": null,
+      "quantity": 65.27,
+      "name": null,
+      "productType": 10,
+      "price": 1.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 614.00,
+      "paymentType": 3,
+      "nds": 12,
+      "providerInn": null,
+      "quantity": 614.0,
+      "name": null,
+      "productType": 10,
+      "price": 1.00,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7734443270  ",
+  "fiscalDocumentNumber": 167117,
+  "retailPlace": "https://vkusvill.ru/",
+  "retailPlaceAddress": "Республика Башкортостан, 450057, г. Уфа, ул. Заки Валиди, 64/1",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 0.00,
+  "kktRegId": "0006895053041308    ",
+  "paymentAgentType": null,
+  "requestNumber": 5032,
+  "nds10": null,
+  "messageFiscalSign": null,
+  "shiftNumber": 45,
+  "fnsSite": null,
+  "ecashTotalSum": 679.27,
+  "operationType": 1,
+  "creditSum": 0.00,
+  "nds18": null,
+  "receiptCode": null,
+  "buyerAddress": "abakumovoleg@gmail.com",
+  "operator": "Кассир",
+  "internetSign": 1,
+  "nds0": null,
+  "ndsNo": null,
+  "nds18118": null,
+  "nds10110": 5.93,
+  "amountsReceiptNds": {
+    "amountsNds": [
+      {
+        "nds": 12,
+        "ndsSum": 110.72
+      }
+    ]
+  }
+}

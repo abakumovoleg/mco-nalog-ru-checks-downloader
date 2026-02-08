@@ -1,0 +1,68 @@
+﻿{
+  "fiscalSign": "1924447370",
+  "provisionSum": 0.00,
+  "user": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ РЕШЕНИЯ\"",
+  "machineNumber": "KKT092712",
+  "fiscalDriveNumber": "7380440902653253",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 2991.00,
+  "taxationType": 1,
+  "dateTime": "2025-12-28T18:26:00",
+  "items": [
+    {
+      "sum": 2770.00,
+      "paymentType": 1,
+      "nds": 6,
+      "providerInn": "000000000000",
+      "quantity": 1.0,
+      "name": "Suda Collagen Fxone Apple, 13 г 30 саше Коллаген для кожи, волос и ногтей, яблочный вкус",
+      "productType": 10,
+      "price": 2770.00,
+      "providerData": {
+        "providerPhone": [
+          "+74952321000"
+        ],
+        "providerName": "Furkan Tellioglu"
+      },
+      "paymentAgentData": null
+    },
+    {
+      "sum": 221.00,
+      "paymentType": 1,
+      "nds": 3,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Доставка",
+      "productType": 10,
+      "price": 221.00,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7704217370  ",
+  "fiscalDocumentNumber": 138006,
+  "retailPlace": "ozon.ru",
+  "retailPlaceAddress": "109316, Москва, Волгоградский проспект, 42, к 9",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 0.00,
+  "kktRegId": "0009633988015088    ",
+  "paymentAgentType": null,
+  "requestNumber": 2191,
+  "nds10": null,
+  "messageFiscalSign": null,
+  "shiftNumber": 32,
+  "fnsSite": null,
+  "ecashTotalSum": 2991.00,
+  "operationType": 1,
+  "creditSum": 0.00,
+  "nds18": null,
+  "receiptCode": null,
+  "buyerAddress": "abakumovoleg@gmail.com",
+  "operator": null,
+  "internetSign": 1,
+  "nds0": null,
+  "ndsNo": 2770.00,
+  "nds18118": 36.83,
+  "nds10110": null,
+  "amountsReceiptNds": null
+}

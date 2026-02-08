@@ -1,0 +1,106 @@
+﻿{
+  "fiscalSign": "4201923303",
+  "provisionSum": 0.00,
+  "user": "АКЦИОНЕРНОЕ ОБЩЕСТВО \"ВКУСВИЛЛ\"",
+  "machineNumber": null,
+  "fiscalDriveNumber": "7380440902619356",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 1703.00,
+  "taxationType": 1,
+  "dateTime": "2026-01-25T00:51:00",
+  "items": [
+    {
+      "sum": 8.00,
+      "paymentType": 4,
+      "nds": 11,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Пакет-майка 'ВкусВилл' малый",
+      "productType": 1,
+      "price": 8.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 1052.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Сыр 'Тет де Муан' 3 мес. (Швейцария), 100 г",
+      "productType": 1,
+      "price": 1052.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 149.00,
+      "paymentType": 4,
+      "nds": 11,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Экспресс доставка",
+      "productType": 4,
+      "price": 149.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 194.00,
+      "paymentType": 4,
+      "nds": 11,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Полотенца универсальные, 50 листов",
+      "productType": 1,
+      "price": 194.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 300.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Сыр 'Маасдам', 200 г",
+      "productType": 1,
+      "price": 300.00,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7734443270  ",
+  "fiscalDocumentNumber": 148567,
+  "retailPlace": "www.vkusvill.ru",
+  "retailPlaceAddress": "109316, г. Москва, вн.тер.г. муниципальный округ Текстильщики, проезд Остаповский, д. 22 стр. 16",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 1703.00,
+  "kktRegId": "0006207495034245    ",
+  "paymentAgentType": null,
+  "requestNumber": 34,
+  "nds10": 122.91,
+  "messageFiscalSign": null,
+  "shiftNumber": 114,
+  "fnsSite": null,
+  "ecashTotalSum": 0.00,
+  "operationType": 1,
+  "creditSum": 0.00,
+  "nds18": null,
+  "receiptCode": null,
+  "buyerAddress": "abakumovoleg@gmail.com",
+  "operator": "Кассир",
+  "internetSign": 1,
+  "nds0": null,
+  "ndsNo": null,
+  "nds18118": null,
+  "nds10110": null,
+  "amountsReceiptNds": {
+    "amountsNds": [
+      {
+        "nds": 11,
+        "ndsSum": 63.29
+      }
+    ]
+  }
+}

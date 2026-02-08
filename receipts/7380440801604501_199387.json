@@ -1,0 +1,68 @@
+﻿{
+  "fiscalSign": "3278487687",
+  "provisionSum": 0.00,
+  "user": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ РЕШЕНИЯ\"",
+  "machineNumber": "KZN039322",
+  "fiscalDriveNumber": "7380440801604501",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 431.00,
+  "taxationType": 1,
+  "dateTime": "2025-08-10T01:14:00",
+  "items": [
+    {
+      "sum": 408.53,
+      "paymentType": 1,
+      "nds": 6,
+      "providerInn": "390510816602",
+      "quantity": 1.0,
+      "name": "Корректор осанки для взрослых , для детей / Тренажер для спины / Осанка корректор женский , мужской",
+      "productType": 10,
+      "price": 408.53,
+      "providerData": {
+        "providerPhone": [
+          "+74952321000"
+        ],
+        "providerName": "Лускин Сергей Сергеевич, ИП"
+      },
+      "paymentAgentData": null
+    },
+    {
+      "sum": 22.47,
+      "paymentType": 1,
+      "nds": 3,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Доставка",
+      "productType": 10,
+      "price": 22.47,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7704217370  ",
+  "fiscalDocumentNumber": 199387,
+  "retailPlace": "ozon.ru",
+  "retailPlaceAddress": "109316, Москва, Волгоградский проспект, 42, к 9",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 0.00,
+  "kktRegId": "0006815736031559    ",
+  "paymentAgentType": null,
+  "requestNumber": 1768,
+  "nds10": null,
+  "messageFiscalSign": null,
+  "shiftNumber": 50,
+  "fnsSite": null,
+  "ecashTotalSum": 431.00,
+  "operationType": 2,
+  "creditSum": 0.00,
+  "nds18": null,
+  "receiptCode": null,
+  "buyerAddress": "abakumovoleg@gmail.com",
+  "operator": null,
+  "internetSign": 1,
+  "nds0": null,
+  "ndsNo": 408.53,
+  "nds18118": 3.74,
+  "nds10110": null,
+  "amountsReceiptNds": null
+}

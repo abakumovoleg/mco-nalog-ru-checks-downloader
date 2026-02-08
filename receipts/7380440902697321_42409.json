@@ -1,0 +1,58 @@
+﻿{
+  "fiscalSign": "2610310251",
+  "provisionSum": 0.00,
+  "user": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"Т-МОБ\"",
+  "machineNumber": "CK002617",
+  "fiscalDriveNumber": "7380440902697321",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 3.90,
+  "taxationType": 1,
+  "dateTime": "2026-01-28T14:39:00",
+  "items": [
+    {
+      "sum": 3.90,
+      "paymentType": 1,
+      "nds": 12,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Предоплата услуг Т-Мобайл",
+      "productType": 4,
+      "price": 3.90,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7743200179  ",
+  "fiscalDocumentNumber": 42409,
+  "retailPlace": "mobile.tbank.ru",
+  "retailPlaceAddress": "117342, Москва, ул. Бутлерова, 17Б",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 0.00,
+  "kktRegId": "0009842843025704    ",
+  "paymentAgentType": null,
+  "requestNumber": 2242,
+  "nds10": null,
+  "messageFiscalSign": null,
+  "shiftNumber": 9,
+  "fnsSite": null,
+  "ecashTotalSum": 3.90,
+  "operationType": 1,
+  "creditSum": 0.00,
+  "nds18": null,
+  "receiptCode": null,
+  "buyerAddress": "+79852759232",
+  "operator": "Сист. администратор",
+  "internetSign": 1,
+  "nds0": 0.00,
+  "ndsNo": null,
+  "nds18118": null,
+  "nds10110": null,
+  "amountsReceiptNds": {
+    "amountsNds": [
+      {
+        "nds": 12,
+        "ndsSum": 0.70
+      }
+    ]
+  }
+}

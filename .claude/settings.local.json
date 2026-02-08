@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet new:*)",
+      "Bash(dotnet build:*)",
+      "Bash(grep:*)",
+      "Bash(while read file)",
+      "Bash(do grep -q \"7734443270\" \"$file\")",
+      "Bash(echo:*)",
+      "Bash(ls:*)",
+      "Bash(node build_data.js:*)",
+      "Bash(node -e:*)",
+      "Bash(node:*)",
+      "Bash(del:*)",
+      "Bash(git init:*)"
+    ]
+  }
+}

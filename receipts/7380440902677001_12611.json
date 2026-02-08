@@ -1,0 +1,142 @@
+﻿{
+  "fiscalSign": "2307990275",
+  "provisionSum": 0.00,
+  "user": "АО \"ВКУСВИЛЛ\"",
+  "machineNumber": null,
+  "fiscalDriveNumber": "7380440902677001",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 2188.57,
+  "taxationType": 1,
+  "dateTime": "2026-01-18T20:06:00",
+  "items": [
+    {
+      "sum": 382.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Говядина копчено-варёная Премиум категории А",
+      "productType": 1,
+      "price": 382.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 600.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 2.0,
+      "name": "Огурцы среднеплодные гладкие сорт 'Сплэш', 385 г",
+      "productType": 1,
+      "price": 300.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 245.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Сыр 'Легкий' нарезка, 150г",
+      "productType": 1,
+      "price": 245.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 245.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Сыр 'Легкий' нарезка, 150г",
+      "productType": 1,
+      "price": 245.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 380.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Томаты красные Зира, 450 г",
+      "productType": 1,
+      "price": 380.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 8.00,
+      "paymentType": 4,
+      "nds": 11,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Пакет-майка 'ВкусВилл' малый",
+      "productType": 1,
+      "price": 8.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 245.00,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Сыр 'Легкий' нарезка, 150г",
+      "productType": 1,
+      "price": 245.00,
+      "providerData": null,
+      "paymentAgentData": null
+    },
+    {
+      "sum": 83.57,
+      "paymentType": 4,
+      "nds": 2,
+      "providerInn": null,
+      "quantity": 0.274,
+      "name": "Хлеб 'Романовский', нарезка",
+      "productType": 1,
+      "price": 305.00,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7734443270  ",
+  "fiscalDocumentNumber": 12611,
+  "retailPlace": "www.vkusvill.ru",
+  "retailPlaceAddress": "109316, г. Москва, вн.тер.г. муниципальный округ Текстильщики, проезд Остаповский, д. 22 стр. 16",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 2188.57,
+  "kktRegId": "0009806185010113    ",
+  "paymentAgentType": null,
+  "requestNumber": 2115,
+  "nds10": 198.24,
+  "messageFiscalSign": null,
+  "shiftNumber": 8,
+  "fnsSite": null,
+  "ecashTotalSum": 0.00,
+  "operationType": 1,
+  "creditSum": 0.00,
+  "nds18": null,
+  "receiptCode": null,
+  "buyerAddress": "abakumovoleg@gmail.com",
+  "operator": "Кассир",
+  "internetSign": 1,
+  "nds0": null,
+  "ndsNo": null,
+  "nds18118": null,
+  "nds10110": null,
+  "amountsReceiptNds": {
+    "amountsNds": [
+      {
+        "nds": 11,
+        "ndsSum": 1.44
+      }
+    ]
+  }
+}

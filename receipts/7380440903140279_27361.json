@@ -1,0 +1,58 @@
+﻿{
+  "fiscalSign": "1650223668",
+  "provisionSum": 0.00,
+  "user": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ЯНДЕКС.ТАКСИ\"",
+  "machineNumber": "whitespirit2f",
+  "fiscalDriveNumber": "7380440903140279",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 6713.00,
+  "taxationType": 1,
+  "dateTime": "2026-01-31T10:21:00",
+  "items": [
+    {
+      "sum": 6713.00,
+      "paymentType": 4,
+      "nds": 7,
+      "providerInn": "772873531793",
+      "quantity": 1.0,
+      "name": "Перевозка пассажиров и багажа",
+      "productType": 1,
+      "price": 6713.00,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7704340310  ",
+  "fiscalDocumentNumber": 27361,
+  "retailPlace": "taxi.yandex.ru",
+  "retailPlaceAddress": "248926, Россия, Калужская обл., г. Калуга, проезд 1-й Автомобильный, дом 8",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 0.00,
+  "kktRegId": "0007411752047858    ",
+  "paymentAgentType": null,
+  "requestNumber": 598,
+  "nds10": 0.00,
+  "messageFiscalSign": null,
+  "shiftNumber": 43,
+  "fnsSite": null,
+  "ecashTotalSum": 6713.00,
+  "operationType": 1,
+  "creditSum": 0.00,
+  "nds18": 0.00,
+  "receiptCode": null,
+  "buyerAddress": "+79852759232",
+  "operator": null,
+  "internetSign": 1,
+  "nds0": 0.00,
+  "ndsNo": 0.00,
+  "nds18118": 0.00,
+  "nds10110": 0.00,
+  "amountsReceiptNds": {
+    "amountsNds": [
+      {
+        "nds": 7,
+        "ndsSum": 319.67
+      }
+    ]
+  }
+}

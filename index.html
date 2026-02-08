@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Анализ расходов</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 20px; font-size: 1.8rem; }
+  .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .filters label { font-weight: 600; font-size: 0.85rem; }
+  .filters input, .filters select { padding: 6px 10px; border: 1px solid #d0d5dd; border-radius: 6px; font-size: 0.9rem; }
+  .filters select { max-width: 260px; }
+  .filters input[type=text] { width: 220px; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); text-align: center; }
+  .card .value { font-size: 1.6rem; font-weight: 700; color: #4361ee; }
+  .card .label { font-size: 0.85rem; color: #667; margin-top: 4px; }
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-box { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .chart-box h3 { margin-bottom: 12px; font-size: 1rem; }
+  .chart-box.full { grid-column: 1 / -1; }
+  .table-wrap { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow-x: auto; }
+  .table-wrap h3 { margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+  th { cursor: pointer; user-select: none; background: #f8f9fb; position: sticky; top: 0; }
+  th:hover { background: #eef; }
+  th .arrow { font-size: 0.7rem; margin-left: 4px; }
+  tr:hover td { background: #f5f7ff; }
+  .table-container { max-height: 500px; overflow-y: auto; }
+  @media (max-width: 800px) { .charts { grid-template-columns: 1fr; } }
+  .time-toggle { display: inline-flex; gap: 4px; margin-left: 12px; }
+  .time-toggle button { padding: 3px 10px; border: 1px solid #d0d5dd; border-radius: 4px; background: #fff; cursor: pointer; font-size: 0.8rem; }
+  .time-toggle button.active { background: #4361ee; color: #fff; border-color: #4361ee; }
+</style>
+</head>
+<body>
+<h1>Анализ расходов по чекам</h1>
+
+<div class="filters">
+  <label>С:</label><input type="date" id="dateFrom">
+  <label>По:</label><input type="date" id="dateTo">
+  <label>Магазин:</label><select id="storeFilter"><option value="">Все</option></select>
+  <label>Поиск товара:</label><input type="text" id="itemSearch" placeholder="Название товара...">
+</div>
+
+<div class="summary">
+  <div class="card"><div class="value" id="totalSpent">0</div><div class="label">Общая сумма, руб.</div></div>
+  <div class="card"><div class="value" id="totalReceipts">0</div><div class="label">Чеков с товарами</div></div>
+  <div class="card"><div class="value" id="totalItems">0</div><div class="label">Уникальных товаров</div></div>
+  <div class="card"><div class="value" id="totalPositions">0</div><div class="label">Позиций в чеках</div></div>
+</div>
+
+<div class="charts">
+  <div class="chart-box"><h3>Топ-20 товаров по сумме</h3><canvas id="topItemsChart"></canvas></div>
+  <div class="chart-box"><h3>Расходы по магазинам</h3><canvas id="storeChart"></canvas></div>
+  <div class="chart-box full">
+    <h3>Расходы по времени
+      <span class="time-toggle">
+        <button data-mode="day" class="active">День</button>
+        <button data-mode="week">Неделя</button>
+        <button data-mode="month">Месяц</button>
+      </span>
+    </h3>
+    <canvas id="timeChart"></canvas>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <h3>Все товары</h3>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th data-col="name">Товар <span class="arrow"></span></th>
+          <th data-col="totalSum">Сумма <span class="arrow"></span></th>
+          <th data-col="count">Покупок <span class="arrow"></span></th>
+          <th data-col="totalQty">Кол-во <span class="arrow"></span></th>
+          <th data-col="avgPrice">Ср. цена <span class="arrow"></span></th>
+          <th data-col="store">Магазин <span class="arrow"></span></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function() {
+  const fmt = n => n.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Parse dates once
+  const data = RECEIPT_DATA.map(r => ({ ...r, _date: new Date(r.date) }));
+
+  // Populate store filter
+  const stores = [...new Set(data.map(r => r.store))].sort();
+  const storeSel = document.getElementById('storeFilter');
+  stores.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; storeSel.appendChild(o); });
+
+  // Set default date range
+  const dates = data.map(r => r._date);
+  const minDate = new Date(Math.min(...dates));
+  const maxDate = new Date(Math.max(...dates));
+  document.getElementById('dateFrom').value = minDate.toISOString().slice(0, 10);
+  document.getElementById('dateTo').value = maxDate.toISOString().slice(0, 10);
+
+  let timeMode = 'day';
+  let sortCol = 'totalSum', sortDir = -1;
+
+  // Charts
+  const COLORS = ['#4361ee','#3a0ca3','#7209b7','#f72585','#4cc9f0','#4895ef','#560bad','#b5179e','#f77f00','#06d6a0','#118ab2','#073b4c','#e63946','#457b9d','#2a9d8f','#264653','#e9c46a','#f4a261','#a8dadc','#1d3557'];
+
+  const topItemsChart = new Chart(document.getElementById('topItemsChart'), {
+    type: 'bar',
+    data: { labels: [], datasets: [{ label: 'Сумма, руб.', data: [], backgroundColor: COLORS }] },
+    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => fmt(v) } } } }
+  });
+
+  const storeChart = new Chart(document.getElementById('storeChart'), {
+    type: 'doughnut',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: COLORS }] },
+    options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 12 } } } }
+  });
+
+  const timeChart = new Chart(document.getElementById('timeChart'), {
+    type: 'line',
+    data: { labels: [], datasets: [{ label: 'Расходы, руб.', data: [], borderColor: '#4361ee', backgroundColor: 'rgba(67,97,238,0.1)', fill: true, tension: 0.3 }] },
+    options: { responsive: true, scales: { x: { type: 'time', time: { unit: 'day' }, title: { display: true, text: 'Дата' } }, y: { ticks: { callback: v => fmt(v) } } }, plugins: { legend: { display: false } } }
+  });
+
+  function getFiltered() {
+    const from = document.getElementById('dateFrom').value;
+    const to = document.getElementById('dateTo').value;
+    const store = storeSel.value;
+    const search = document.getElementById('itemSearch').value.toLowerCase().trim();
+    const fromD = from ? new Date(from + 'T00:00:00') : null;
+    const toD = to ? new Date(to + 'T23:59:59') : null;
+    return data.filter(r => {
+      if (fromD && r._date < fromD) return false;
+      if (toD && r._date > toD) return false;
+      if (store && r.store !== store) return false;
+      if (search && !r.name.toLowerCase().includes(search)) return false;
+      return true;
+    });
+  }
+
+  function aggregateItems(filtered) {
+    const map = {};
+    for (const r of filtered) {
+      const key = r.name;
+      if (!map[key]) map[key] = { name: key, totalSum: 0, count: 0, totalQty: 0, stores: new Set() };
+      map[key].totalSum += r.sum;
+      map[key].count++;
+      map[key].totalQty += r.quantity;
+      map[key].stores.add(r.store);
+    }
+    return Object.values(map).map(v => ({ ...v, avgPrice: v.totalSum / v.totalQty, store: [...v.stores].join(', ') }));
+  }
+
+  function aggregateStores(filtered) {
+    const map = {};
+    for (const r of filtered) { map[r.store] = (map[r.store] || 0) + r.sum; }
+    return Object.entries(map).sort((a, b) => b[1] - a[1]);
+  }
+
+  function aggregateTime(filtered) {
+    const map = {};
+    for (const r of filtered) {
+      let key;
+      const d = r._date;
+      if (timeMode === 'day') { key = d.toISOString().slice(0, 10); }
+      else if (timeMode === 'week') {
+        const mon = new Date(d); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+        key = mon.toISOString().slice(0, 10);
+      } else {
+        key = d.toISOString().slice(0, 7) + '-01';
+      }
+      map[key] = (map[key] || 0) + r.sum;
+    }
+    return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
+  }
+
+  function update() {
+    const filtered = getFiltered();
+    const items = aggregateItems(filtered);
+    const storeData = aggregateStores(filtered);
+    const timeData = aggregateTime(filtered);
+
+    // Summary
+    const total = filtered.reduce((s, r) => s + r.sum, 0);
+    const receipts = new Set(filtered.map(r => r.date + r.store)).size;
+    document.getElementById('totalSpent').textContent = fmt(total);
+    document.getElementById('totalReceipts').textContent = receipts;
+    document.getElementById('totalItems').textContent = items.length;
+    document.getElementById('totalPositions').textContent = filtered.length;
+
+    // Top items
+    const top = [...items].sort((a, b) => b.totalSum - a.totalSum).slice(0, 20);
+    topItemsChart.data.labels = top.map(i => i.name.length > 40 ? i.name.slice(0, 37) + '...' : i.name);
+    topItemsChart.data.datasets[0].data = top.map(i => Math.round(i.totalSum * 100) / 100);
+    topItemsChart.update();
+
+    // Store chart
+    const topStores = storeData.slice(0, 15);
+    const otherSum = storeData.slice(15).reduce((s, e) => s + e[1], 0);
+    const storeLabels = topStores.map(e => e[0]);
+    const storeVals = topStores.map(e => Math.round(e[1] * 100) / 100);
+    if (otherSum > 0) { storeLabels.push('Другие'); storeVals.push(Math.round(otherSum * 100) / 100); }
+    storeChart.data.labels = storeLabels;
+    storeChart.data.datasets[0].data = storeVals;
+    storeChart.update();
+
+    // Time chart
+    const unit = timeMode === 'day' ? 'day' : timeMode === 'week' ? 'week' : 'month';
+    timeChart.options.scales.x.time.unit = unit;
+    timeChart.data.labels = timeData.map(e => e[0]);
+    timeChart.data.datasets[0].data = timeData.map(e => ({ x: e[0], y: Math.round(e[1] * 100) / 100 }));
+    timeChart.update();
+
+    // Table
+    const sorted = [...items].sort((a, b) => {
+      const va = a[sortCol], vb = b[sortCol];
+      if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+      return (va - vb) * sortDir;
+    });
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = sorted.map(i => `<tr>
+      <td>${esc(i.name)}</td>
+      <td>${fmt(i.totalSum)}</td>
+      <td>${i.count}</td>
+      <td>${i.totalQty % 1 === 0 ? i.totalQty : i.totalQty.toFixed(3)}</td>
+      <td>${fmt(i.avgPrice)}</td>
+      <td>${esc(i.store)}</td>
+    </tr>`).join('');
+
+    // Update sort arrows
+    document.querySelectorAll('th[data-col]').forEach(th => {
+      const arrow = th.querySelector('.arrow');
+      arrow.textContent = th.dataset.col === sortCol ? (sortDir === 1 ? '\u25B2' : '\u25BC') : '';
+    });
+  }
+
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // Event listeners
+  ['dateFrom', 'dateTo', 'storeFilter'].forEach(id => document.getElementById(id).addEventListener('change', update));
+  document.getElementById('itemSearch').addEventListener('input', update);
+
+  document.querySelectorAll('.time-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.time-toggle button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      timeMode = btn.dataset.mode;
+      update();
+    });
+  });
+
+  document.querySelectorAll('th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (sortCol === col) sortDir *= -1;
+      else { sortCol = col; sortDir = col === 'name' || col === 'store' ? 1 : -1; }
+      update();
+    });
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+﻿{
+  "fiscalSign": "2137728248",
+  "provisionSum": 0.00,
+  "user": "ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"ИНТЕРНЕТ РЕШЕНИЯ\"",
+  "machineNumber": "KZN070432",
+  "fiscalDriveNumber": "7380440902249228",
+  "fiscalDocumentFormatVer": "4",
+  "totalSum": 1925.00,
+  "taxationType": 1,
+  "dateTime": "2025-10-10T13:32:00",
+  "items": [
+    {
+      "sum": 318.34,
+      "paymentType": 1,
+      "nds": 6,
+      "providerInn": "773404548987",
+      "quantity": 1.0,
+      "name": "Ножки (4 шт) для квадрокоптера фалкон ноги шасси коптер дрон запчасти р/у quadcopter mini drone HIPER FALCON X FPV",
+      "productType": 10,
+      "price": 318.34,
+      "providerData": {
+        "providerPhone": [
+          "+74952321000"
+        ],
+        "providerName": "Ковалев Владимир Александрович, ИП"
+      },
+      "paymentAgentData": null
+    },
+    {
+      "sum": 1385.67,
+      "paymentType": 1,
+      "nds": 6,
+      "providerInn": "773404548987",
+      "quantity": 1.0,
+      "name": "Видеокамера FPV фото и видео съемка для квадрокоптера фалкон ФПВ камера на коптер дрон запчасти р/у quadcopter mini drone",
+      "productType": 10,
+      "price": 1385.67,
+      "providerData": {
+        "providerPhone": [
+          "+74952321000"
+        ],
+        "providerName": "Ковалев Владимир Александрович, ИП"
+      },
+      "paymentAgentData": null
+    },
+    {
+      "sum": 220.99,
+      "paymentType": 1,
+      "nds": 3,
+      "providerInn": null,
+      "quantity": 1.0,
+      "name": "Доставка",
+      "productType": 10,
+      "price": 220.99,
+      "providerData": null,
+      "paymentAgentData": null
+    }
+  ],
+  "userInn": "7704217370  ",
+  "fiscalDocumentNumber": 82572,
+  "retailPlace": "ozon.ru",
+  "retailPlaceAddress": "109316, Москва, Волгоградский проспект, 42, к 9",
+  "cashTotalSum": 0.00,
+  "prepaidSum": 0.00,
+  "kktRegId": "0006003613045508    ",
+  "paymentAgentType": null,
+  "requestNumber": 2605,
+  "nds10": null,
+  "messageFiscalSign": null,
+  "shiftNumber": 22,
+  "fnsSite": null,
+  "ecashTotalSum": 1925.00,
+  "operationType": 1,
+  "creditSum": 0.00,
+  "nds18": null,
+  "receiptCode": null,
+  "buyerAddress": "abakumovoleg@gmail.com",
+  "operator": null,
+  "internetSign": 1,
+  "nds0": null,
+  "ndsNo": 1704.01,
+  "nds18118": 36.83,
+  "nds10110": null,
+  "amountsReceiptNds": null
+}
