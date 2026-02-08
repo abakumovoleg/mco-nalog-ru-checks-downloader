@@ -12,6 +12,9 @@ for (const file of files) {
   const raw = fs.readFileSync(path.join(receiptsDir, file), 'utf-8').replace(/^\uFEFF/, '');
   const receipt = JSON.parse(raw);
 
+  // Skip delivery-confirmation receipts where the full amount was already pre-paid
+  if (receipt.prepaidSum != null && receipt.totalSum != null && receipt.prepaidSum >= receipt.totalSum) continue;
+
   const items = receipt.items || [];
   const hasNamedItems = items.some(i => i.name != null && i.name !== '');
   if (!hasNamedItems) continue;

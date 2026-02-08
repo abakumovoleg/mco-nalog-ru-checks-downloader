@@ -60,6 +60,14 @@ while (true)
 
         var detailBody = new { key = receipt.Key };
         var detailResponse = await http.PostAsJsonAsync($"{BaseUrl}/receipt/fiscal_data", detailBody);
+
+        if (detailResponse.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+        {
+            skipped++;
+            Console.WriteLine($"  SKIP {fileId} (422 Unprocessable Entity)");
+            continue;
+        }
+
         detailResponse.EnsureSuccessStatusCode();
 
         var detailJson = await detailResponse.Content.ReadAsStringAsync();

@@ -30,7 +30,13 @@
   th { cursor: pointer; user-select: none; background: #f8f9fb; position: sticky; top: 0; }
   th:hover { background: #eef; }
   th .arrow { font-size: 0.7rem; margin-left: 4px; }
-  tr:hover td { background: #f5f7ff; }
+  tr.item-row { cursor: pointer; }
+  tr.item-row:hover td { background: #f5f7ff; }
+  tr.item-row td:first-child::before { content: '\25B6'; font-size: 0.65rem; margin-right: 6px; color: #999; }
+  tr.item-row.expanded td:first-child::before { content: '\25BC'; }
+  tr.detail-row td { padding: 0; background: #f8f9fb; }
+  .detail-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0; }
+  .detail-table td { padding: 5px 12px; border-bottom: 1px solid #eee; color: #555; }
   .table-container { max-height: 500px; overflow-y: auto; }
   @media (max-width: 800px) { .charts { grid-template-columns: 1fr; } }
   .time-toggle { display: inline-flex; gap: 4px; margin-left: 12px; }
@@ -153,13 +159,14 @@
     const map = {};
     for (const r of filtered) {
       const key = r.name;
-      if (!map[key]) map[key] = { name: key, totalSum: 0, count: 0, totalQty: 0, stores: new Set() };
+      if (!map[key]) map[key] = { name: key, totalSum: 0, count: 0, totalQty: 0, stores: new Set(), ops: [] };
       map[key].totalSum += r.sum;
       map[key].count++;
       map[key].totalQty += r.quantity;
       map[key].stores.add(r.store);
+      map[key].ops.push(r);
     }
-    return Object.values(map).map(v => ({ ...v, avgPrice: v.totalSum / v.totalQty, store: [...v.stores].join(', ') }));
+    return Object.values(map).map(v => ({ ...v, avgPrice: v.totalSum / v.totalQty, store: [...v.stores].join(', '), ops: v.ops.sort((a, b) => b._date - a._date) }));
   }
 
   function aggregateStores(filtered) {
@@ -229,14 +236,38 @@
       return (va - vb) * sortDir;
     });
     const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = sorted.map(i => `<tr>
-      <td>${esc(i.name)}</td>
-      <td>${fmt(i.totalSum)}</td>
-      <td>${i.count}</td>
-      <td>${i.totalQty % 1 === 0 ? i.totalQty : i.totalQty.toFixed(3)}</td>
-      <td>${fmt(i.avgPrice)}</td>
-      <td>${esc(i.store)}</td>
-    </tr>`).join('');
+    tbody.innerHTML = sorted.map((item, idx) => {
+      const detailRows = item.ops.map(o => `<tr>
+        <td>${o.date.slice(0, 10)}</td>
+        <td>${esc(o.store)}</td>
+        <td>${o.quantity % 1 === 0 ? o.quantity : o.quantity.toFixed(3)}</td>
+        <td>${fmt(o.price)}</td>
+        <td colspan="2">${fmt(o.sum)}</td>
+      </tr>`).join('');
+      return `<tr class="item-row" data-idx="${idx}">
+        <td>${esc(item.name)}</td>
+        <td>${fmt(item.totalSum)}</td>
+        <td>${item.count}</td>
+        <td>${item.totalQty % 1 === 0 ? item.totalQty : item.totalQty.toFixed(3)}</td>
+        <td>${fmt(item.avgPrice)}</td>
+        <td>${esc(item.store)}</td>
+      </tr>
+      <tr class="detail-row" data-idx="${idx}" style="display:none">
+        <td colspan="6"><table class="detail-table">
+          <tr><td><b>Дата</b></td><td><b>Магазин</b></td><td><b>Кол-во</b></td><td><b>Цена</b></td><td colspan="2"><b>Сумма</b></td></tr>
+          ${detailRows}
+        </table></td>
+      </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('.item-row').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const detail = tbody.querySelector(`.detail-row[data-idx="${tr.dataset.idx}"]`);
+        const open = detail.style.display !== 'none';
+        detail.style.display = open ? 'none' : '';
+        tr.classList.toggle('expanded', !open);
+      });
+    });
 
     // Update sort arrows
     document.querySelectorAll('th[data-col]').forEach(th => {

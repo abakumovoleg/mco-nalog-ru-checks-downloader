@@ -12,7 +12,8 @@
       "Bash(node -e:*)",
       "Bash(node:*)",
       "Bash(del:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git rm:*)"
     ]
   }
 }
