@@ -42,6 +42,9 @@
   .time-toggle { display: inline-flex; gap: 4px; margin-left: 12px; }
   .time-toggle button { padding: 3px 10px; border: 1px solid #d0d5dd; border-radius: 4px; background: #fff; cursor: pointer; font-size: 0.8rem; }
   .time-toggle button.active { background: #4361ee; color: #fff; border-color: #4361ee; }
+  .chart-select-wrap { position: relative; }
+  .chart-select-wrap canvas { cursor: crosshair; }
+  .select-overlay { position: absolute; top: 0; bottom: 0; background: rgba(67,97,238,0.15); border-left: 1px solid #4361ee; border-right: 1px solid #4361ee; pointer-events: none; display: none; }
 </style>
 </head>
 <body>
@@ -72,7 +75,10 @@
         <button data-mode="month">Месяц</button>
       </span>
     </h3>
-    <canvas id="timeChart"></canvas>
+    <div class="chart-select-wrap">
+      <canvas id="timeChart"></canvas>
+      <div class="select-overlay" id="selectOverlay"></div>
+    </div>
   </div>
 </div>
 
@@ -298,6 +304,53 @@
       else { sortCol = col; sortDir = col === 'name' || col === 'store' ? 1 : -1; }
       update();
     });
+  });
+
+  // Drag-select on time chart to set date filters
+  const timeCanvas = document.getElementById('timeChart');
+  const overlay = document.getElementById('selectOverlay');
+  let dragStart = null;
+
+  timeCanvas.addEventListener('mousedown', e => {
+    const rect = timeCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const scale = timeChart.scales.x;
+    if (x < scale.left || x > scale.right) return;
+    dragStart = x;
+    overlay.style.left = x + 'px';
+    overlay.style.width = '0px';
+    overlay.style.display = 'block';
+  });
+
+  timeCanvas.addEventListener('mousemove', e => {
+    if (dragStart == null) return;
+    const rect = timeCanvas.getBoundingClientRect();
+    const x = Math.min(Math.max(e.clientX - rect.left, timeChart.scales.x.left), timeChart.scales.x.right);
+    const left = Math.min(dragStart, x);
+    const width = Math.abs(x - dragStart);
+    overlay.style.left = left + 'px';
+    overlay.style.width = width + 'px';
+  });
+
+  timeCanvas.addEventListener('mouseup', e => {
+    if (dragStart == null) return;
+    const rect = timeCanvas.getBoundingClientRect();
+    const x = Math.min(Math.max(e.clientX - rect.left, timeChart.scales.x.left), timeChart.scales.x.right);
+    overlay.style.display = 'none';
+    const scale = timeChart.scales.x;
+    const d1 = new Date(scale.getValueForPixel(dragStart));
+    const d2 = new Date(scale.getValueForPixel(x));
+    dragStart = null;
+    const from = d1 < d2 ? d1 : d2;
+    const to = d1 < d2 ? d2 : d1;
+    if (to - from < 86400000) return; // ignore tiny drags
+    document.getElementById('dateFrom').value = from.toISOString().slice(0, 10);
+    document.getElementById('dateTo').value = to.toISOString().slice(0, 10);
+    update();
+  });
+
+  timeCanvas.addEventListener('mouseleave', () => {
+    if (dragStart != null) { dragStart = null; overlay.style.display = 'none'; }
   });
 
   update();
