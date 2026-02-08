@@ -13,7 +13,10 @@
       "Bash(node:*)",
       "Bash(del:*)",
       "Bash(git init:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(dotnet run:*)",
+      "Bash(git -C c:devchecks diff --stat data.js)"
     ]
   }
 }
