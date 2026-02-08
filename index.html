@@ -142,7 +142,30 @@
   const timeChart = new Chart(document.getElementById('timeChart'), {
     type: 'line',
     data: { labels: [], datasets: [{ label: 'Расходы, руб.', data: [], borderColor: '#4361ee', backgroundColor: 'rgba(67,97,238,0.1)', fill: true, tension: 0.3 }] },
-    options: { responsive: true, scales: { x: { type: 'time', time: { unit: 'day' }, title: { display: true, text: 'Дата' } }, y: { ticks: { callback: v => fmt(v) } } }, plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      scales: { x: { type: 'time', time: { unit: 'day' }, title: { display: true, text: 'Дата' } }, y: { ticks: { callback: v => fmt(v) } } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => ctx[0]?.label || '',
+            afterBody: function(ctx) {
+              const label = ctx[0]?.dataset?.data?.[ctx[0]?.dataIndex]?.x;
+              if (!label || !timeChart._itemsByDate) return '';
+              const items = timeChart._itemsByDate[label];
+              if (!items || items.length === 0) return '';
+              const lines = items.slice(0, 10).map(([name, sum]) => {
+                const short = name.length > 35 ? name.slice(0, 32) + '...' : name;
+                return `  ${short}: ${fmt(sum)}`;
+              });
+              if (items.length > 10) lines.push(`  ...и ещё ${items.length - 10}`);
+              return lines.join('\n');
+            }
+          }
+        }
+      }
+    }
   });
 
   function getFiltered() {
@@ -193,7 +216,9 @@
       } else {
         key = d.toISOString().slice(0, 7) + '-01';
       }
-      map[key] = (map[key] || 0) + r.sum;
+      if (!map[key]) map[key] = { sum: 0, items: {} };
+      map[key].sum += r.sum;
+      map[key].items[r.name] = (map[key].items[r.name] || 0) + r.sum;
     }
     return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
   }
@@ -232,7 +257,11 @@
     const unit = timeMode === 'day' ? 'day' : timeMode === 'week' ? 'week' : 'month';
     timeChart.options.scales.x.time.unit = unit;
     timeChart.data.labels = timeData.map(e => e[0]);
-    timeChart.data.datasets[0].data = timeData.map(e => ({ x: e[0], y: Math.round(e[1] * 100) / 100 }));
+    timeChart.data.datasets[0].data = timeData.map(e => ({ x: e[0], y: Math.round(e[1].sum * 100) / 100 }));
+    timeChart._itemsByDate = {};
+    for (const [key, val] of timeData) {
+      timeChart._itemsByDate[key] = Object.entries(val.items).sort((a, b) => b[1] - a[1]);
+    }
     timeChart.update();
 
     // Table
