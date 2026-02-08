@@ -141,13 +141,18 @@
 
   const timeChart = new Chart(document.getElementById('timeChart'), {
     type: 'line',
-    data: { labels: [], datasets: [{ label: 'Расходы, руб.', data: [], borderColor: '#4361ee', backgroundColor: 'rgba(67,97,238,0.1)', fill: true, tension: 0.3 }] },
+    data: { labels: [], datasets: [
+      { label: 'Расходы', data: [], borderColor: '#4361ee', backgroundColor: 'rgba(67,97,238,0.1)', fill: true, tension: 0.3, pointRadius: 3 },
+      { label: 'Среднее', data: [], borderColor: '#06d6a0', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false },
+      { label: 'Медиана', data: [], borderColor: '#f72585', borderDash: [3, 3], borderWidth: 2, pointRadius: 0, fill: false }
+    ] },
     options: {
       responsive: true,
       scales: { x: { type: 'time', time: { unit: 'day' }, title: { display: true, text: 'Дата' } }, y: { ticks: { callback: v => fmt(v) } } },
       plugins: {
-        legend: { display: false },
+        legend: { labels: { font: { size: 11 }, boxWidth: 12, usePointStyle: true } },
         tooltip: {
+          filter: item => item.datasetIndex === 0,
           callbacks: {
             title: ctx => ctx[0]?.label || '',
             afterBody: function(ctx) {
@@ -256,8 +261,23 @@
     // Time chart
     const unit = timeMode === 'day' ? 'day' : timeMode === 'week' ? 'week' : 'month';
     timeChart.options.scales.x.time.unit = unit;
-    timeChart.data.labels = timeData.map(e => e[0]);
-    timeChart.data.datasets[0].data = timeData.map(e => ({ x: e[0], y: Math.round(e[1].sum * 100) / 100 }));
+    const timeLabels = timeData.map(e => e[0]);
+    const timeSums = timeData.map(e => Math.round(e[1].sum * 100) / 100);
+    timeChart.data.labels = timeLabels;
+    timeChart.data.datasets[0].data = timeLabels.map((l, i) => ({ x: l, y: timeSums[i] }));
+
+    // Average & median
+    const avg = timeSums.length ? timeSums.reduce((a, b) => a + b, 0) / timeSums.length : 0;
+    const sortedSums = [...timeSums].sort((a, b) => a - b);
+    const mid = Math.floor(sortedSums.length / 2);
+    const median = sortedSums.length === 0 ? 0 : sortedSums.length % 2 ? sortedSums[mid] : (sortedSums[mid - 1] + sortedSums[mid]) / 2;
+    const avgRound = Math.round(avg * 100) / 100;
+    const medRound = Math.round(median * 100) / 100;
+    timeChart.data.datasets[1].data = timeLabels.map(l => ({ x: l, y: avgRound }));
+    timeChart.data.datasets[1].label = `Среднее (${fmt(avgRound)})`;
+    timeChart.data.datasets[2].data = timeLabels.map(l => ({ x: l, y: medRound }));
+    timeChart.data.datasets[2].label = `Медиана (${fmt(medRound)})`;
+
     timeChart._itemsByDate = {};
     for (const [key, val] of timeData) {
       timeChart._itemsByDate[key] = Object.entries(val.items).sort((a, b) => b[1] - a[1]);
