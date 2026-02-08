@@ -24,53 +24,37 @@ int BuildData()
         File.ReadAllText(mappingPath)) ?? [];
 
     var files = Directory.GetFiles(OutputDir, "*.json");
-    var records = new List<object>();
+    var records = new List<ReceiptRecord>();
 
     foreach (var file in files)
     {
         var raw = File.ReadAllText(file, Encoding.UTF8).TrimStart('\uFEFF');
-        var receipt = JsonSerializer.Deserialize<JsonElement>(raw);
-
-        var prepaidSum = receipt.TryGetProperty("prepaidSum", out var ps) ? ps.GetDecimal() : (decimal?)null;
-        var totalSum = receipt.TryGetProperty("totalSum", out var ts) ? ts.GetDecimal() : (decimal?)null;
-        if (prepaidSum != null && totalSum != null && prepaidSum >= totalSum)
+        var receipt = JsonSerializer.Deserialize<Receipt>(raw);
+        if (receipt == null)
             continue;
 
-        if (!receipt.TryGetProperty("items", out var itemsEl))
+        if (receipt.PrepaidSum != null && receipt.TotalSum != null && receipt.PrepaidSum >= receipt.TotalSum)
             continue;
 
-        var items = itemsEl.EnumerateArray().ToList();
-        if (!items.Any(i => i.TryGetProperty("name", out var n) && n.GetString() is { Length: > 0 }))
+        if (receipt.Items == null || !receipt.Items.Any(i => !string.IsNullOrEmpty(i.Name)))
             continue;
 
-        var user = receipt.TryGetProperty("user", out var u) ? u.GetString() : null;
-        var retailPlace = receipt.TryGetProperty("retailPlace", out var rp) ? rp.GetString() : null;
-        var dateTime = receipt.TryGetProperty("dateTime", out var dt) ? dt.GetString() : null;
+        var store = (receipt.User != null && storeMapping.TryGetValue(receipt.User, out var s1) ? s1 : null)
+            ?? (receipt.RetailPlace != null && storeMapping.TryGetValue(receipt.RetailPlace, out var s2) ? s2 : null)
+            ?? receipt.User ?? receipt.RetailPlace ?? "Unknown";
 
-        var store = (user != null && storeMapping.TryGetValue(user, out var s1) ? s1 : null)
-            ?? (retailPlace != null && storeMapping.TryGetValue(retailPlace, out var s2) ? s2 : null)
-            ?? user ?? retailPlace ?? "Unknown";
-
-        foreach (var item in items)
+        foreach (var item in receipt.Items)
         {
-            var name = item.TryGetProperty("name", out var nm) ? nm.GetString() : null;
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(item.Name))
                 continue;
 
-            records.Add(new
-            {
-                name,
-                sum = item.TryGetProperty("sum", out var sm) ? sm.GetDecimal() : 0,
-                quantity = item.TryGetProperty("quantity", out var qt) ? qt.GetDouble() : 0,
-                price = item.TryGetProperty("price", out var pr) ? pr.GetDecimal() : 0,
-                date = dateTime,
-                store
-            });
+            records.Add(new ReceiptRecord(item.Name, item.Sum, item.Quantity, item.Price, receipt.DateTime, store));
         }
     }
 
     var jsonOptions = new JsonSerializerOptions
     {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
@@ -95,6 +79,9 @@ async Task<int> Download(string[] args)
     }
 
     Directory.CreateDirectory(OutputDir);
+
+    const int maxParallelism = 3;
+    const int maxRetries = 3;
 
     var jsonOptions = new JsonSerializerOptions
     {
@@ -123,40 +110,53 @@ async Task<int> Download(string[] args)
         if (listResult?.Receipts == null || listResult.Receipts.Count == 0)
             break;
 
-        foreach (var receipt in listResult.Receipts)
+        await Parallel.ForEachAsync(listResult.Receipts,
+            new ParallelOptions { MaxDegreeOfParallelism = maxParallelism },
+            async (receipt, ct) =>
         {
             var fileId = $"{receipt.FiscalDriveNumber}_{receipt.FiscalDocumentNumber}";
             var filePath = Path.Combine(OutputDir, $"{fileId}.json");
 
             if (File.Exists(filePath))
             {
-                skipped++;
+                Interlocked.Increment(ref skipped);
                 Console.WriteLine($"  SKIP {fileId} (already exists)");
-                continue;
+                return;
             }
 
-            var detailBody = new { key = receipt.Key };
-            var detailResponse = await http.PostAsJsonAsync($"{BaseUrl}/receipt/fiscal_data", detailBody);
-
-            if (detailResponse.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
             {
-                skipped++;
-                Console.WriteLine($"  SKIP {fileId} (422 Unprocessable Entity)");
-                continue;
+                try
+                {
+                    var detailBody = new { key = receipt.Key };
+                    var detailResponse = await http.PostAsJsonAsync($"{BaseUrl}/receipt/fiscal_data", detailBody, ct);
+
+                    if (detailResponse.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                    {
+                        Interlocked.Increment(ref skipped);
+                        Console.WriteLine($"  SKIP {fileId} (422 Unprocessable Entity)");
+                        return;
+                    }
+
+                    detailResponse.EnsureSuccessStatusCode();
+
+                    var detailJson = await detailResponse.Content.ReadAsStringAsync(ct);
+                    var detailDoc = JsonSerializer.Deserialize<JsonElement>(detailJson);
+                    var formatted = JsonSerializer.Serialize(detailDoc, jsonOptions);
+
+                    await File.WriteAllTextAsync(filePath, formatted, Encoding.UTF8, ct);
+                    Interlocked.Increment(ref downloaded);
+                    Console.WriteLine($"  OK   {fileId} — {receipt.TotalSum} — {receipt.KktOwner}");
+                    return;
+                }
+                catch (HttpRequestException ex) when (attempt < maxRetries)
+                {
+                    var delay = TimeSpan.FromSeconds(Math.Pow(2, attempt - 1));
+                    Console.WriteLine($"  RETRY {fileId} (attempt {attempt}/{maxRetries}: {ex.Message}), waiting {delay.TotalSeconds}s...");
+                    await Task.Delay(delay, ct);
+                }
             }
-
-            detailResponse.EnsureSuccessStatusCode();
-
-            var detailJson = await detailResponse.Content.ReadAsStringAsync();
-
-            // Re-serialize with indentation for consistent formatting
-            var detailDoc = JsonSerializer.Deserialize<JsonElement>(detailJson);
-            var formatted = JsonSerializer.Serialize(detailDoc, jsonOptions);
-
-            await File.WriteAllTextAsync(filePath, formatted, Encoding.UTF8);
-            downloaded++;
-            Console.WriteLine($"  OK   {fileId} — {receipt.TotalSum} — {receipt.KktOwner}");
-        }
+        });
 
         if (listResult.HasMore != true)
             break;
@@ -169,11 +169,11 @@ async Task<int> Download(string[] args)
 }
 
 record ReceiptListResponse(
-    [property: JsonPropertyName("receipts")] List<ReceiptItem> Receipts,
+    [property: JsonPropertyName("receipts")] List<ReceiptListItem> Receipts,
     [property: JsonPropertyName("hasMore")] bool? HasMore
 );
 
-record ReceiptItem(
+record ReceiptListItem(
     [property: JsonPropertyName("key")] string Key,
     [property: JsonPropertyName("fiscalDocumentNumber")] string FiscalDocumentNumber,
     [property: JsonPropertyName("fiscalDriveNumber")] string FiscalDriveNumber,
@@ -181,3 +181,25 @@ record ReceiptItem(
     [property: JsonPropertyName("kktOwner")] string KktOwner,
     [property: JsonPropertyName("createdDate")] string CreatedDate
 );
+
+record Receipt
+{
+    [JsonPropertyName("user")] public string? User { get; init; }
+    [JsonPropertyName("retailPlace")] public string? RetailPlace { get; init; }
+    [JsonPropertyName("dateTime")] public string? DateTime { get; init; }
+    [JsonPropertyName("totalSum")] public decimal? TotalSum { get; init; }
+    [JsonPropertyName("prepaidSum")] public decimal? PrepaidSum { get; init; }
+    [JsonPropertyName("items")] public List<ReceiptItem>? Items { get; init; }
+    [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; set; }
+}
+
+record ReceiptItem
+{
+    [JsonPropertyName("name")] public string? Name { get; init; }
+    [JsonPropertyName("sum")] public decimal Sum { get; init; }
+    [JsonPropertyName("quantity")] public double Quantity { get; init; }
+    [JsonPropertyName("price")] public decimal Price { get; init; }
+    [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; set; }
+}
+
+record ReceiptRecord(string Name, decimal Sum, double Quantity, decimal Price, string? Date, string Store);
