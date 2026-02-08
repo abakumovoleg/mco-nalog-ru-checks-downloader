@@ -1,31 +1,23 @@
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace ReceiptDownloader;
 
 static class DataBuilder
-{    
-    const string OutputFile = "../data.js";
-    const string StoreMappingFile = "../store_mapping.json";
-
-    private static readonly JsonSerializerOptions JsonOptions = new ()
+{
+    public static int Build(ReceiptsRepository repo, string baseDir)
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
-    };
+        var outputFile = Path.Combine(baseDir, "data.js");
+        var storeMappingFile = Path.Combine(baseDir, "store_mapping.json");
 
-    public static int Build(ReceiptsRepository repo)
-    {
-        var storeMapping = File.Exists(StoreMappingFile)
-            ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(StoreMappingFile)) ?? []
+        var storeMapping = File.Exists(storeMappingFile)
+            ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(storeMappingFile)) ?? []
             : [];
 
         var records = new List<ReceiptRecord>();
 
         var fileCount = 0;
-        
+
         foreach (var receipt in repo.ReadAll())
         {
             fileCount++;
@@ -33,7 +25,7 @@ static class DataBuilder
             if (receipt.PrepaidSum != null && receipt.TotalSum != null && receipt.PrepaidSum >= receipt.TotalSum)
                 continue;
 
-            if (receipt.Items == null || !receipt.Items.Any(i => !string.IsNullOrEmpty(i.Name)))
+            if (receipt.Items == null || receipt.Items.All(i => string.IsNullOrEmpty(i.Name)))
                 continue;
 
             var store = (receipt.User != null && storeMapping.TryGetValue(receipt.User, out var s1) ? s1 : null)
@@ -49,8 +41,8 @@ static class DataBuilder
             }
         }
 
-        var json = JsonSerializer.Serialize(records, JsonOptions);
-        File.WriteAllText(OutputFile, $"const RECEIPT_DATA = {json};\n", Encoding.UTF8);
+        var json = JsonSerializer.Serialize(records, JsonDefaults.Options);
+        File.WriteAllText(outputFile, $"const RECEIPT_DATA = {json};\n", Encoding.UTF8);
 
         Console.WriteLine($"Processed {fileCount} files, extracted {records.Count} item records.");
         return 0;

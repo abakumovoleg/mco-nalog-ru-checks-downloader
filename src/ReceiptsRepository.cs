@@ -1,45 +1,36 @@
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace ReceiptDownloader;
 
 class ReceiptsRepository
 {
-    const string OutputDir = "../receipts";
+    readonly string _outputDir;
 
-    private readonly JsonSerializerOptions _jsonOptions = new()
+    public ReceiptsRepository(string baseDir)
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
-    public ReceiptsRepository()
-    {
-        Directory.CreateDirectory(OutputDir);
+        _outputDir = Path.Combine(baseDir, "receipts");
+        Directory.CreateDirectory(_outputDir);
     }
 
     public bool Exists(string fileId) => File.Exists(GetPath(fileId));
 
     public async Task Save(string fileId, Receipt receipt, CancellationToken ct = default)
     {
-        var json = JsonSerializer.Serialize(receipt, _jsonOptions);
+        var json = JsonSerializer.Serialize(receipt, JsonDefaults.Options);
         await File.WriteAllTextAsync(GetPath(fileId), json, Encoding.UTF8, ct);
     }
 
     public IEnumerable<Receipt> ReadAll()
     {
-        foreach (var file in Directory.GetFiles(OutputDir, "*.json"))
+        foreach (var file in Directory.GetFiles(_outputDir, "*.json"))
         {
             var raw = File.ReadAllText(file, Encoding.UTF8).TrimStart('\uFEFF');
-            var receipt = JsonSerializer.Deserialize<Receipt>(raw);
+            var receipt = JsonSerializer.Deserialize<Receipt>(raw, JsonDefaults.Options);
             if (receipt != null)
                 yield return receipt;
         }
     }
 
-    string GetPath(string fileId) => Path.Combine(OutputDir, $"{fileId}.json");
+    string GetPath(string fileId) => Path.Combine(_outputDir, $"{fileId}.json");
 }

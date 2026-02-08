@@ -6,7 +6,7 @@ class ReceiptSync(NalogClient client, ReceiptsRepository repo)
     const int MaxParallelism = 3;
     const int MaxRetries = 3;
 
-    public async Task<(int Downloaded, int Skipped)> DownloadAll()
+    public async Task<(int Downloaded, int Skipped)> DownloadAll(CancellationToken ct = default)
     {
         int offset = 0;
         int downloaded = 0;
@@ -14,13 +14,15 @@ class ReceiptSync(NalogClient client, ReceiptsRepository repo)
 
         while (true)
         {
-            var listResult = await WithRetry(ct => client.ListReceipts(PageSize, offset, ct));
+            ct.ThrowIfCancellationRequested();
+
+            var listResult = await WithRetry(innerCt => client.ListReceipts(PageSize, offset, innerCt), ct);
             if (listResult?.Receipts == null || listResult.Receipts.Count == 0)
                 break;
 
             await Parallel.ForEachAsync(listResult.Receipts,
-                new ParallelOptions { MaxDegreeOfParallelism = MaxParallelism },
-                async (receipt, ct) =>
+                new ParallelOptions { MaxDegreeOfParallelism = MaxParallelism, CancellationToken = ct },
+                async (receipt, itemCt) =>
             {
                 var fileId = $"{receipt.FiscalDriveNumber}_{receipt.FiscalDocumentNumber}";
 
@@ -31,7 +33,7 @@ class ReceiptSync(NalogClient client, ReceiptsRepository repo)
                     return;
                 }
 
-                var detail = await WithRetry(ct2 => client.GetReceiptDetail(receipt.Key, ct2), ct);
+                var detail = await WithRetry(retryCt => client.GetReceiptDetail(receipt.Key, retryCt), itemCt);
 
                 if (detail == null)
                 {
@@ -40,7 +42,7 @@ class ReceiptSync(NalogClient client, ReceiptsRepository repo)
                     return;
                 }
 
-                await repo.Save(fileId, detail, ct);
+                await repo.Save(fileId, detail, itemCt);
                 Interlocked.Increment(ref downloaded);
                 Console.WriteLine($"  OK   {fileId} — {receipt.TotalSum} — {receipt.KktOwner}");
             });
