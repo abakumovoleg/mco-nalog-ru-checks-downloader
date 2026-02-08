@@ -1,18 +1,13 @@
-using System.Text;
-using System.Text.Json;
-
 namespace ReceiptDownloader;
 
-class ReceiptSync(NalogClient client, JsonSerializerOptions jsonOptions)
+class ReceiptSync(NalogClient client, ReceiptsRepository repo)
 {
     const int PageSize = 10;
     const int MaxParallelism = 3;
     const int MaxRetries = 3;
 
-    public async Task<(int Downloaded, int Skipped)> DownloadAll(string outputDir)
+    public async Task<(int Downloaded, int Skipped)> DownloadAll()
     {
-        Directory.CreateDirectory(outputDir);
-
         int offset = 0;
         int downloaded = 0;
         int skipped = 0;
@@ -28,9 +23,8 @@ class ReceiptSync(NalogClient client, JsonSerializerOptions jsonOptions)
                 async (receipt, ct) =>
             {
                 var fileId = $"{receipt.FiscalDriveNumber}_{receipt.FiscalDocumentNumber}";
-                var filePath = Path.Combine(outputDir, $"{fileId}.json");
 
-                if (File.Exists(filePath))
+                if (repo.Exists(fileId))
                 {
                     Interlocked.Increment(ref skipped);
                     Console.WriteLine($"  SKIP {fileId} (already exists)");
@@ -46,8 +40,7 @@ class ReceiptSync(NalogClient client, JsonSerializerOptions jsonOptions)
                     return;
                 }
 
-                var formatted = JsonSerializer.Serialize(detail, jsonOptions);
-                await File.WriteAllTextAsync(filePath, formatted, Encoding.UTF8, ct);
+                await repo.Save(fileId, detail, ct);
                 Interlocked.Increment(ref downloaded);
                 Console.WriteLine($"  OK   {fileId} — {receipt.TotalSum} — {receipt.KktOwner}");
             });

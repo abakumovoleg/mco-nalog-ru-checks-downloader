@@ -1,25 +1,31 @@
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ReceiptDownloader;
 
 static class DataBuilder
 {
-    public static int Build(string receiptsDir, string outputFile, string storeMappingFile, JsonSerializerOptions jsonOptions)
+    private static readonly JsonSerializerOptions JsonOptions = new ()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true
+    };
+
+    public static int Build(ReceiptsRepository repo, string outputFile, string storeMappingFile)
     {
         var storeMapping = File.Exists(storeMappingFile)
             ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(storeMappingFile)) ?? []
             : [];
 
-        var files = Directory.GetFiles(receiptsDir, "*.json");
         var records = new List<ReceiptRecord>();
 
-        foreach (var file in files)
+        var fileCount = 0;
+        
+        foreach (var receipt in repo.ReadAll())
         {
-            var raw = File.ReadAllText(file, Encoding.UTF8).TrimStart('\uFEFF');
-            var receipt = JsonSerializer.Deserialize<Receipt>(raw);
-            if (receipt == null)
-                continue;
+            fileCount++;
 
             if (receipt.PrepaidSum != null && receipt.TotalSum != null && receipt.PrepaidSum >= receipt.TotalSum)
                 continue;
@@ -40,10 +46,10 @@ static class DataBuilder
             }
         }
 
-        var json = JsonSerializer.Serialize(records, jsonOptions);
+        var json = JsonSerializer.Serialize(records, JsonOptions);
         File.WriteAllText(outputFile, $"const RECEIPT_DATA = {json};\n", Encoding.UTF8);
 
-        Console.WriteLine($"Processed {files.Length} files, extracted {records.Count} item records.");
+        Console.WriteLine($"Processed {fileCount} files, extracted {records.Count} item records.");
         return 0;
     }
 }

@@ -1,12 +1,22 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ReceiptDownloader;
 
-class NalogClient(string token, JsonSerializerOptions jsonOptions) : IDisposable
+class NalogClient(string token) : IDisposable
 {
+    private static readonly JsonSerializerOptions jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+     };
+     
     const string BaseUrl = "https://mco.nalog.ru/api/v1";
 
     readonly HttpClient _http = CreateHttpClient(token);

@@ -1,22 +1,13 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using ReceiptDownloader;
 
-const string OutputDir = "receipts";
+
 const string OutputFile = "data.js";
 const string StoreMappingFile = "store_mapping.json";
 
-var jsonOptions = new JsonSerializerOptions
-{
-    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    WriteIndented = true,
-    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-};
+var repo = new ReceiptsRepository();
 
 if (args.Length > 0 && args[0] == "build")
-    return DataBuilder.Build(OutputDir, OutputFile, StoreMappingFile, jsonOptions);
+    return DataBuilder.Build(repo, OutputFile, StoreMappingFile);
 
 var token = args.Length > 0 ? args[0] : Environment.GetEnvironmentVariable("NALOG_TOKEN");
 if (string.IsNullOrEmpty(token))
@@ -29,9 +20,9 @@ if (string.IsNullOrEmpty(token))
 
 Console.WriteLine("Fetching receipts...");
 
-using var client = new NalogClient(token, jsonOptions);
-var sync = new ReceiptSync(client, jsonOptions);
-var (downloaded, skipped) = await sync.DownloadAll(OutputDir);
+using var client = new NalogClient(token);
+var sync = new ReceiptSync(client, repo);
+var (downloaded, skipped) = await sync.DownloadAll();
 
 Console.WriteLine($"\nDone. Downloaded: {downloaded}, Skipped: {skipped}");
 return 0;
