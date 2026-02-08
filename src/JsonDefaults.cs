@@ -10,7 +10,6 @@ static class JsonDefaults
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 }

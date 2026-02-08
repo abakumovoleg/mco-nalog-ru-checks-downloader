@@ -25,7 +25,7 @@ class ReceiptsRepository
     {
         foreach (var file in Directory.GetFiles(_outputDir, "*.json"))
         {
-            var raw = File.ReadAllText(file, Encoding.UTF8).TrimStart('\uFEFF');
+            var raw = File.ReadAllText(file, Encoding.UTF8);
             var receipt = JsonSerializer.Deserialize<Receipt>(raw, JsonDefaults.Options);
             if (receipt != null)
                 yield return receipt;
