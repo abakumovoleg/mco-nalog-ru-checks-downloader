@@ -23,10 +23,12 @@
 Передайте Bearer-токен авторизации первым аргументом командной строки или через переменную окружения `NALOG_TOKEN`:
 
 ```bash
+cd src
 dotnet run -- <bearer_token>
 ```
 
 ```bash
+cd src
 set NALOG_TOKEN=<bearer_token>
 dotnet run
 ```
@@ -36,6 +38,7 @@ dotnet run
 Склейка загруженных чеков из `receipts/` в единый файл `data.js` для использования в `index.html`:
 
 ```bash
+cd src
 dotnet run -- build
 ```
 
